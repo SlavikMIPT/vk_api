@@ -84,8 +84,6 @@ class VkBotEventType(Enum):
 
     GROUP_CHANGE_PHOTO = 'group_change_photo'
 
-    VKPAY_TRANSACTION = 'vkpay_transaction'
-
 
 class VkBotEvent(object):
     """ Событие Bots Long Poll
@@ -269,7 +267,6 @@ class VkBotLongPoll(object):
 
         :yields: :class:`Event`
         """
-
         while True:
             for event in self.check():
                 yield event

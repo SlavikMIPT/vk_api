@@ -48,7 +48,7 @@ class VkApi(object):
     :type password: str
 
     :param token: access_token
-    :type token: dict
+    :type token: str
 
     :param auth_handler: Функция для обработки двухфакторной аутентификации,
         должна возвращать строку с кодом и
@@ -74,10 +74,6 @@ class VkApi(object):
         Внимание: Этот способ авторизации устарел, рекомендуется использовать
         сервисный ключ из настроек приложения.
 
-    :param proxies: Прокси серверы с Российскими IP для получения 320k
-        {'http': f'socks5://proxyuser@127.0.0.1:{server.local_bind_port}',
-        'https': f'socks5://proxyuser@127.0.0.1:{server.local_bind_port}'}
-    :type proxies: dict
 
     `login` и `password` необходимы для автоматического получения токена при помощи
     Implicit Flow авторизации пользователя и возможности работы с веб-версией сайта
@@ -89,13 +85,13 @@ class VkApi(object):
     def __init__(self, login=None, password=None, token=None,
                  auth_handler=None, captcha_handler=None,
                  config=jconfig.Config, config_filename='vk_config.v2.json',
-                 api_version='5.85', app_id=3697615, scope=DEFAULT_USER_SCOPE,
-                 client_secret='AlVXZFMUqyrnABp8ncuU', proxies=None):
+                 api_version='5.80', app_id=6222115, scope=DEFAULT_USER_SCOPE,
+                 client_secret=None):
 
         self.login = login
         self.password = password
 
-        self.token = token
+        self.token = {'access_token': token}
 
         self.api_version = api_version
         self.app_id = app_id
@@ -105,7 +101,6 @@ class VkApi(object):
         self.storage = config(self.login, filename=config_filename)
 
         self.http = requests.Session()
-        self.http.proxies = proxies
         self.http.headers.update({
             'User-agent': 'Mozilla/5.0 (Windows NT 6.1; rv:52.0) '
                           'Gecko/20100101 Firefox/52.0'
@@ -163,23 +158,15 @@ class VkApi(object):
             self.http.cookies,
             self.storage.setdefault('cookies', [])
         )
-        if self.token is None:
-            self.token = self.storage.setdefault(
-                'token', {}
-            ).setdefault('app' + str(self.app_id), {}
-                         ).get('scope_' + str(self.scope))
+
+        self.token = self.storage.setdefault(
+            'token', {}
+        ).setdefault(
+            'app' + str(self.app_id), {}
+        ).get('scope_' + str(self.scope))
 
         if token_only:
-            if self.token is None:
-                self._auth_token(reauth=reauth)
-            else:
-                self.storage.setdefault(
-                    'token', {}
-                ).setdefault(
-                    'app' + str(self.app_id), {}
-                )['scope_' + str(self.scope)] = self.token
-
-                self.storage.save()
+            self._auth_token(reauth=reauth)
         else:
             self._auth_cookies(reauth=reauth)
 
@@ -472,10 +459,8 @@ class VkApi(object):
         values = {
             'client_id': self.app_id,
             'client_secret': self.client_secret,
-            'scope': self.scope,
-            'password': self.password,
-            'username': self.login,
-            'grant_type': 'password'
+            'v': self.api_version,
+            'grant_type': 'client_credentials'
         }
 
         response = self.http.post(
