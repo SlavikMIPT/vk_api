@@ -271,5 +271,4 @@ class VkBotLongPoll(object):
         """
 
         while True:
-            for event in self.check():
-                yield event
+            yield from self.check()

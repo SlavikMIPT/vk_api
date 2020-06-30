@@ -237,7 +237,7 @@ class VkUpload(object):
         :type repeat: bool
         """
 
-        if not link and not video_file:
+        if not (link or video_file):
             raise ValueError('Either link or video_file param is required')
 
         if link and video_file:
@@ -420,7 +420,7 @@ class VkUpload(object):
         else:
             raise ValueError('type should be either photo or video')
 
-        if not add_to_news and not user_ids:
+        if not (add_to_news or user_ids):
             raise ValueError(
                 'add_to_news and/or user_ids param is required'
             )
@@ -483,10 +483,7 @@ class FilesOpener(object):
             if hasattr(file, 'read'):
                 f = file
 
-                if hasattr(file, 'name'):
-                    filename = file.name
-                else:
-                    filename = '.jpg'
+                filename = file.name if hasattr(file, 'name') else '.jpg'
             else:
                 filename = file
                 f = open(filename, 'rb')

@@ -31,11 +31,7 @@ def decode_audio_url(string, user_id):
 
         split_op_data = op_data.split('\x0b')
         cmd = split_op_data[0]
-        if len(split_op_data) > 1:
-            arg = split_op_data[1]
-        else:
-            arg = None
-
+        arg = split_op_data[1] if len(split_op_data) > 1 else None
         if cmd == 'v':
             tstr = tstr[::-1]
 
@@ -66,14 +62,12 @@ def vk_o(string):
         if sym_index != -1:
             if index2 % 4 != 0:
                 i = (i << 6) + sym_index
-            else:
-                i = sym_index
-
-            if index2 % 4 != 0:
                 index2 += 1
                 shift = -2 * index2 & 6
                 result += [chr(0xFF & (i >> shift))]
             else:
+                i = sym_index
+
                 index2 += 1
 
     return ''.join(result)

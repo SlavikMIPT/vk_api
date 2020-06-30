@@ -74,9 +74,7 @@ class VkAudio(object):
             if not tracks:
                 break
 
-            for i in tracks:
-                yield i
-
+            yield from tracks
             offset += offset_diff
 
     def get(self, owner_id=None, album_id=None):
@@ -122,9 +120,7 @@ class VkAudio(object):
             if not albums:
                 break
 
-            for i in albums:
-                yield i
-
+            yield from albums
             offset += ALBUMS_PER_USER_PAGE
 
     def get_albums(self, owner_id=None):
@@ -200,9 +196,7 @@ class VkAudio(object):
             if not tracks:
                 break
 
-            for track in tracks:
-                yield track
-
+            yield from tracks
             offset += 50
 
 

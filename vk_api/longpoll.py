@@ -409,14 +409,10 @@ class Event(object):
             self.user_id = self.peer_id
 
     def _parse_message_flags(self):
-        self.message_flags = set(
-            x for x in VkMessageFlag if self.flags & x
-        )
+        self.message_flags = {x for x in VkMessageFlag if self.flags & x}
 
     def _parse_peer_flags(self):
-        self.peer_flags = set(
-            x for x in VkPeerFlag if self.flags & x
-        )
+        self.peer_flags = {x for x in VkPeerFlag if self.flags & x}
 
     def _parse_message(self):
         if self.flags & VkMessageFlag.OUTBOX:
@@ -592,5 +588,4 @@ class VkLongPoll(object):
         """
 
         while True:
-            for event in self.check():
-                yield event
+            yield from self.check()
